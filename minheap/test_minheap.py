@@ -110,9 +110,8 @@ def test_heap_matches_heapified_version():
         heapified = heap.heap.copy()
         heapq.heapify(heapified)
         
-        # Compare element by element
-        for i in range(len(heap.heap)):
-            assert heap.heap[i] == heapified[i], f"Mismatch at index {i}"
+        # Compare my heap implementation with heapq's in heap building via array 
+        assert heap.heap == heapified, f"Mismatch"
 
 def test_manual_heap_matches_heapified_version():
     # Test different arrays
@@ -133,6 +132,5 @@ def test_manual_heap_matches_heapified_version():
         heapified = heap.heap.copy()
         heapq.heapify(heapified)
         
-        # Compare element by element
-        for i in range(len(heap.heap)):
-            assert heap.heap[i] == heapified[i], f"Mismatch at index {i} after inserting from array {arr}"
+        # Compare my heap implementation with heapq's in manual insertion
+        assert heap.heap == heapified, f"Mismatch"
