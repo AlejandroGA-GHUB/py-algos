@@ -22,6 +22,10 @@ class MinHeap:
         for i in range(len(array)):
             self.insert(array[i])
 
+    # Takes in a heap as opposed to explicitly using self.heap as it's also used for testing
+    def print_heap_as_array(self, heap):
+        print(f"Current heap as an array: {heap}")
+
     def siftDown(self, current_idx, end_idx, heap):
         # Write your code here.
         child_one_idx = self.find_left_child_idx(current_idx)
