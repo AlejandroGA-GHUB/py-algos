@@ -11,7 +11,7 @@ def built_heap():
     return MinHeap([9, 4, 7, 1, -2, 6, 5, 3])
 
 def test_empty_heap_initialization(empty_heap):
-    assert len(empty_heap.heap) == 0
+    assert len(empty_heap.__heap) == 0
 
 def test_manual_insertion(empty_heap):
     values = [9, 4, 7, 1, -2, 6, 5, 3]
@@ -19,7 +19,7 @@ def test_manual_insertion(empty_heap):
         empty_heap.insert(value)
     
     # Test heap property after manual insertions
-    heap_array = empty_heap.heap
+    heap_array = empty_heap.__heap
     for i in range(len(heap_array)):
         left = 2 * i + 1
         right = 2 * i + 2
@@ -30,7 +30,7 @@ def test_manual_insertion(empty_heap):
 
 def test_build_heap_initialization(built_heap):
     # Test heap property after buildHeap
-    heap_array = built_heap.heap
+    heap_array = built_heap.__heap
     for i in range(len(heap_array)):
         left = 2 * i + 1
         right = 2 * i + 2
@@ -54,14 +54,14 @@ def test_insert_to_empty(empty_heap):
 
 def test_remove_until_empty(built_heap):
     values = []
-    initial_size = len(built_heap.heap)
+    initial_size = len(built_heap.__heap)
     
     # Remove all elements and verify they come out in ascending order
     for _ in range(initial_size):
         values.append(built_heap.remove())
     
     assert values == sorted(values)
-    assert len(built_heap.heap) == 0
+    assert len(built_heap.__heap) == 0
 
 def test_mixed_operations(empty_heap):
     # Test sequence of insertions and removals
@@ -106,15 +106,25 @@ def test_heap_matches_heapified_version():
     for arr in test_arrays:
         # Build our heap
         heap = MinHeap(arr)
-        # Create heapified version of our final heap
-        heapified = heap.heap.copy()
-        heapq.heapify(heapified)
+        heapq.heapify(arr)
 
-        heap.print_heap_as_array(heap.heap)
-        heap.print_heap_as_array(heapified)
+        heap.print_heap_as_array()
+        print(f"Heapified heap as an array {arr}")
         
         # Compare my heap implementation with heapq's in heap building via array 
-        assert heap.heap == heapified, f"Mismatch"
+        assert heap.size() == len(arr), f"Mismatched Size"
+
+        for i in range(len(arr)):
+            assert heap.peek() == arr[0]
+
+            print(f"My heap val: {heap.peek()} , Heapify val: {arr[0]}")
+
+            heap.remove()
+            heapq.heappop(arr)
+
+        assert heap.size() == len(arr), f"Mismatched Size"
+
+
 
 def test_manual_heap_matches_heapified_version():
     # Test different arrays
@@ -130,13 +140,21 @@ def test_manual_heap_matches_heapified_version():
         heap = MinHeap([])  # Start with empty heap
         for value in arr:
             heap.insert(value)
-            
-        # Create heapified version of our final heap
-        heapified = heap.heap.copy()
-        heapq.heapify(heapified)
-
-        heap.print_heap_as_array(heap.heap)
-        heap.print_heap_as_array(heapified)
         
-        # Compare my heap implementation with heapq's in manual insertion
-        assert heap.heap == heapified, f"Mismatch"
+        heapq.heapify(arr)
+            
+        heap.print_heap_as_array()
+        print(f"Heapified heap as an array {arr}")
+        
+        # Compare my heap implementation with heapq's in heap building via array 
+        assert heap.size() == len(arr), f"Mismatched Size"
+
+        for i in range(len(arr)):
+            assert heap.peek() == arr[0]
+
+            print(f"My heap val: {heap.peek()} , Heapify val: {arr[0]}")
+
+            heap.remove()
+            heapq.heappop(arr)
+
+        assert heap.size() == len(arr), f"Mismatched Size"

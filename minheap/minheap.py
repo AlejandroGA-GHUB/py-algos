@@ -10,7 +10,7 @@ import heapq
 class MinHeap:
     def __init__(self, array):
         # Do not edit the line below.
-        self.heap = []
+        self.__heap = []
         self.buildHeap(array)
 
     # example passed in [9, 4, 7, -2, 6, 5]
@@ -22,9 +22,12 @@ class MinHeap:
         for i in range(len(array)):
             self.insert(array[i])
 
-    # Takes in a heap as opposed to explicitly using self.heap as it's also used for testing
-    def print_heap_as_array(self, heap):
-        print(f"Current heap as an array: {heap}")
+    # Takes in a heap as opposed to explicitly using self.__heap as it's also used for testing
+    def print_heap_as_array(self):
+        print(f"My heap as an array: {self.__heap}")
+
+    def size(self):
+        return len(self.__heap)
 
     def siftDown(self, current_idx, end_idx, heap):
         # Write your code here.
@@ -47,8 +50,8 @@ class MinHeap:
         while current_idx > 0:
             parent_idx = self.find_parent_idx(current_idx)
 
-            if self.heap[current_idx] < self.heap[parent_idx]:
-                self.heap[current_idx], self.heap[parent_idx] = self.heap[parent_idx], self.heap[current_idx]
+            if self.__heap[current_idx] < self.__heap[parent_idx]:
+                self.__heap[current_idx], self.__heap[parent_idx] = self.__heap[parent_idx], self.__heap[current_idx]
                 current_idx = parent_idx
             else:
                 return
@@ -57,27 +60,27 @@ class MinHeap:
         return parent_idx * 2 + 1
     
     def find_right_child_idx(self, parent_idx):
-        return parent_idx * 2 + 2 if parent_idx * 2 + 2 <= len(self.heap) - 1 else -1
+        return parent_idx * 2 + 2 if parent_idx * 2 + 2 <= len(self.__heap) - 1 else -1
     
     def find_parent_idx(self, child_idx):
         return (child_idx - 1) // 2
 
     def peek(self):
         # Write your code here.
-        return self.heap[0]
+        return self.__heap[0]
 
     def remove(self):
         # Write your code here.
-        self.heap[0], self.heap[len(self.heap) - 1] = self.heap[len(self.heap) - 1], self.heap[0]
-        removed_value = self.heap.pop()
-        self.siftDown(0, len(self.heap) - 1, self.heap)
+        self.__heap[0], self.__heap[len(self.__heap) - 1] = self.__heap[len(self.__heap) - 1], self.__heap[0]
+        removed_value = self.__heap.pop()
+        self.siftDown(0, len(self.__heap) - 1, self.__heap)
         return removed_value
 
 
     def insert(self, value):
         # Write your code here.
-        self.heap.append(value)
-        self.siftUp(len(self.heap) - 1)
+        self.__heap.append(value)
+        self.siftUp(len(self.__heap) - 1)
 
 #
 #
@@ -94,7 +97,7 @@ class MinHeap:
 # class MinHeap:
 #     def __init__(self, initial_array: List[int]):
 #         """Initialize MinHeap with an optional initial array"""
-#         self.heap = self.buildHeap(initial_array.copy())  # Avoid modifying input array
+#         self.__heap = self.buildHeap(initial_array.copy())  # Avoid modifying input array
 
 #     def buildHeap(self, array: List[int]) -> List[int]:
 #         """Build a min heap from an unordered array in O(n) time"""
@@ -126,32 +129,32 @@ class MinHeap:
 #         """Move element up the heap until heap property is restored"""
 #         while index > 0:
 #             parent = (index - 1) // 2
-#             if self.heap[index] >= self.heap[parent]:
+#             if self.__heap[index] >= self.__heap[parent]:
 #                 break
-#             self.heap[index], self.heap[parent] = self.heap[parent], self.heap[index]
+#             self.__heap[index], self.__heap[parent] = self.__heap[parent], self.__heap[index]
 #             index = parent
 
 #     def peek(self) -> int:
 #         """Return the minimum element without removing it"""
-#         if not self.heap:
+#         if not self.__heap:
 #             raise IndexError("Heap is empty")
-#         return self.heap[0]
+#         return self.__heap[0]
 
 #     def remove(self) -> int:
 #         """Remove and return the minimum element"""
-#         if not self.heap:
+#         if not self.__heap:
 #             raise IndexError("Heap is empty")
 
-#         min_val = self.heap[0]
-#         last_val = self.heap.pop()
+#         min_val = self.__heap[0]
+#         last_val = self.__heap.pop()
 
-#         if self.heap:  # If heap not empty after pop
-#             self.heap[0] = last_val
-#             self._siftDown(0, self.heap)
+#         if self.__heap:  # If heap not empty after pop
+#             self.__heap[0] = last_val
+#             self._siftDown(0, self.__heap)
 
 #         return min_val
 
 #     def insert(self, value: int) -> None:
 #         """Insert a new value into the heap"""
-#         self.heap.append(value)
-#         self._siftUp(len(self.heap) - 1)
+#         self.__heap.append(value)
+#         self._siftUp(len(self.__heap) - 1)
