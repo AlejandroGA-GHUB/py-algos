@@ -1,10 +1,9 @@
 from collections import deque as q
 
 # 1) Implement topological sort in python
-# 2) add it to algos github
-# 3) implement using both: bfs and dfs
-# 4) Use copilot for code improvement and test cases for both (bfs,dfs)
-# 5) check-in the code to github when done
+# 2) implement using both: bfs and dfs
+# 3) Use copilot for code improvement and test cases for both (bfs,dfs)
+# 4) check-in the code to github when done
 
 class Topological_Sort:
     
@@ -14,6 +13,13 @@ class Topological_Sort:
             self.indegree = 0
             self.dependencies = []
 
+    # [[2, 3], [3, 1], [4, 0], [4, 1], [5, 0], [5, 2]]
+    # 0 -> []
+    # 1 -> []
+    # 2 -> [3]
+    # 3 -> [1]
+    # 4 -> [0, 1]
+    # 5 -> [0, 2]
     def sort(self, tasks: list, tasks_dependencies:list[list]):
         tasks_map = {}
         # Create the GraphNode for each individual task in tasks, and insert into the map
@@ -42,6 +48,7 @@ class Topological_Sort:
                 if graph_node.indegree == 0:
                     completed_tasks.append(graph_node)
         
+        # Check length as an equal length to the original array implies that it had a valid dependency order
         return result if len(result) == len(tasks) else []
 
     def create_graph_nodes(self, tasks: list, tasks_map: map):
