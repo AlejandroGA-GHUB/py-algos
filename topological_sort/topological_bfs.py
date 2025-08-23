@@ -18,8 +18,6 @@ class Graph:
     current_tasks_map = {}
     tasks_lists_seen = {}
     
-    # make tasks_map a member as opposed to a param
-    # incorporate the create_graph_nodes within graphnode, call sort with no args
     class GraphNode: 
         def __init__(self, val: int):
             self.val = val
