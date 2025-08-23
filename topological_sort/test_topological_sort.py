@@ -1,6 +1,6 @@
 import unittest
-from topological_bfs import Topological_Sort as BFS_Sort
-from topological_dfs import Topological_Sort as DFS_Sort
+from topological_bfs import Graph as BFS_Sort
+from topological_dfs import Graph as DFS_Sort
 
 class TestTopologicalSort(unittest.TestCase):
     def setUp(self):
@@ -24,8 +24,12 @@ class TestTopologicalSort(unittest.TestCase):
         tasks = [0, 1, 2, 3, 4, 5]
         tasks_dependencies = [[2, 3], [3, 1], [4, 0], [4, 1], [5, 0], [5, 2]]
         
-        bfs_result = self.bfs_sorter.sort(tasks, tasks_dependencies)
-        dfs_result = self.dfs_sorter.sort(tasks, tasks_dependencies)
+        # Use process() method which handles graph creation and sorting internally
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
         
         # Both should return valid results
         self.assertEqual(len(bfs_result), len(tasks))
@@ -34,50 +38,86 @@ class TestTopologicalSort(unittest.TestCase):
         # Verify dependencies are satisfied in both results
         self.assertTrue(self.validate_dependencies(bfs_result, tasks_dependencies))
         self.assertTrue(self.validate_dependencies(dfs_result, tasks_dependencies))
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_empty_case(self):
         """Test with empty tasks and dependencies"""
         tasks = []
         tasks_dependencies = []
         
-        self.assertEqual(self.bfs_sorter.sort(tasks, tasks_dependencies), [])
-        self.assertEqual(self.dfs_sorter.sort(tasks, tasks_dependencies), [])
+        # For empty case, create empty graphs and sort
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
+        
+        self.assertEqual(bfs_result, [])
+        self.assertEqual(dfs_result, [])
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_no_dependencies(self):
         """Test with tasks but no dependencies between them"""
         tasks = [0, 1, 2]
         tasks_dependencies = []
         
-        bfs_result = self.bfs_sorter.sort(tasks, tasks_dependencies)
-        dfs_result = self.dfs_sorter.sort(tasks, tasks_dependencies)
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
         
         # Results should contain all tasks in any order
         self.assertEqual(sorted(bfs_result), sorted(tasks))
         self.assertEqual(sorted(dfs_result), sorted(tasks))
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_linear_dependencies(self):
         """Test with linear dependencies (0->1->2->3)"""
         tasks = [0, 1, 2, 3]
         tasks_dependencies = [[0, 1], [1, 2], [2, 3]]
         
-        bfs_result = self.bfs_sorter.sort(tasks, tasks_dependencies)
-        dfs_result = self.dfs_sorter.sort(tasks, tasks_dependencies)
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
         
         # Both should respect the linear order
         self.assertEqual(bfs_result, [0, 1, 2, 3])
         self.assertEqual(dfs_result, [0, 1, 2, 3])
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_cycle_detection(self):
         """Test that cycles are detected and return empty list"""
         tasks = [0, 1, 2]
         tasks_dependencies = [[0, 1], [1, 2], [2, 0]]  # Creates a cycle
         
-        bfs_result = self.bfs_sorter.sort(tasks, tasks_dependencies)
-        dfs_result = self.dfs_sorter.sort(tasks, tasks_dependencies)
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
         
         # Both should detect cycle and return empty list
         self.assertEqual(bfs_result, [])
         self.assertEqual(dfs_result, [])
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_complex_dependencies(self):
         """Test with more complex dependencies"""
@@ -88,8 +128,11 @@ class TestTopologicalSort(unittest.TestCase):
             [3, 4]           # 3 must come before 4
         ]
         
-        bfs_result = self.bfs_sorter.sort(tasks, tasks_dependencies)
-        dfs_result = self.dfs_sorter.sort(tasks, tasks_dependencies)
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
         
         # Both should return valid results
         self.assertTrue(self.validate_dependencies(bfs_result, tasks_dependencies))
@@ -100,14 +143,28 @@ class TestTopologicalSort(unittest.TestCase):
         self.assertEqual(bfs_result[-1], 4) # Should end with 4
         self.assertEqual(dfs_result[0], 0)  # Should start with 0
         self.assertEqual(dfs_result[-1], 4) # Should end with 4
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
     def test_single_task(self):
         """Test with a single task"""
         tasks = [0]
         tasks_dependencies = []
         
-        self.assertEqual(self.bfs_sorter.sort(tasks, tasks_dependencies), [0])
-        self.assertEqual(self.dfs_sorter.sort(tasks, tasks_dependencies), [0])
+        self.bfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        bfs_result = self.bfs_sorter.sort()
+        
+        self.dfs_sorter.create_graph_nodes(tasks, tasks_dependencies)
+        dfs_result = self.dfs_sorter.sort()
+        
+        self.assertEqual(bfs_result, [0])
+        self.assertEqual(dfs_result, [0])
+        
+        # Clean up for next test
+        self.bfs_sorter.current_tasks_map.clear()
+        self.dfs_sorter.current_tasks_map.clear()
 
 if __name__ == '__main__':
     unittest.main()
