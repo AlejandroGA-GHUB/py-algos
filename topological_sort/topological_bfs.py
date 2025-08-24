@@ -35,19 +35,19 @@ class Graph:
     # [0, 1, 2, 3, 4, 5]
     def process(self, tasks: list, dependencies_list: list[list]):
 
-        current_tasks_as_tuple = tuple(tasks)
+        current_dependencies_list = tuple(tuple(inner) for inner in dependencies_list)
 
-        if current_tasks_as_tuple not in self.tasks_lists_seen:
+        if current_dependencies_list not in self.tasks_lists_seen:
             print(f"First time processing...")
             self.create_graph_nodes(tasks, dependencies_list)
             arr = self.sort()
-            self.tasks_lists_seen[current_tasks_as_tuple] = arr
+            self.tasks_lists_seen[current_dependencies_list] = arr
             self.print_tasks(arr)
             self.current_tasks_map.clear()
             return
         
         print(f"Task list has been processed already, skipping the sorting step...")
-        self.print_tasks(self.tasks_lists_seen[current_tasks_as_tuple])
+        self.print_tasks(self.tasks_lists_seen[current_dependencies_list])
 
     def print_tasks(self, processed_tasks: list):
         for i in range(len(processed_tasks)):
