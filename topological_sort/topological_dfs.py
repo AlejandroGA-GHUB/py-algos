@@ -1,7 +1,8 @@
 class Graph:
     
-    current_tasks_map = {}
-    tasks_lists_seen = {}
+    def __init__(self):
+        self.current_tasks_map = {}
+        self.tasks_lists_seen = {}
     
     class GraphNode:
         def __init__(self, val: int):
