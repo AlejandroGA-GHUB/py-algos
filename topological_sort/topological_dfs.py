@@ -1,8 +1,10 @@
 class Graph:
     
-    def __init__(self):
+    def __init__(self, tasks: list, dependencies_list: list[list]):
         self.current_tasks_map = {}
-        self.tasks_lists_seen = {}
+        self.tasks_list_seen = {}
+        self.tasks = tasks
+        self.dependencies_list = dependencies_list
     
     class GraphNode:
         def __init__(self, val: int):
@@ -11,35 +13,34 @@ class Graph:
             # unvisited, visiting, visited
             self.visited_status = "Unvisited" 
         
-    def process(self, tasks: list, dependencies_list: list[list]):
+    def process(self):
 
-        current_dependencies_list = tuple(tuple(inner) for inner in dependencies_list)
+        current_dependencies_list = tuple(tuple(inner) for inner in self.dependencies_list)
 
-        if current_dependencies_list not in self.tasks_lists_seen:
+        if current_dependencies_list not in self.tasks_list_seen:
             print(f"First time processing...")
-            self.create_graph_nodes(tasks, dependencies_list)
+            self.create_graph_nodes()
             arr = self.sort()
-            self.tasks_lists_seen[current_dependencies_list] = arr
-            self.print_tasks(arr)
-            self.current_tasks_map.clear()
+            self.tasks_list_seen[current_dependencies_list] = arr
             return
         
         print(f"Task list has been processed already, skipping the sorting step...")
-        self.print_tasks(self.tasks_lists_seen[current_dependencies_list])
+        arr = self.tasks_list_seen[current_dependencies_list]
+        for i, task_val in enumerate(arr):
+            print(f"Task# {i+1} to do is: {task_val}")
     
-    def create_graph_nodes(self, tasks: list, dependencies_list: list[list]):
-        for task in tasks:
+    def create_graph_nodes(self):
+        for task in self.tasks:
             current_node = self.GraphNode(task)
             self.current_tasks_map[task] = current_node
         
         # Set the dependencies of the node at pos 0 in the dependencies_list current list
-        for list in dependencies_list:
+        for list in self.dependencies_list:
             current_dependant = self.current_tasks_map[list[1]]
             self.current_tasks_map[list[0]].dependencies.append(current_dependant)
 
-    def print_tasks(self, processed_tasks: list):
-        for i in range(len(processed_tasks)):
-            print(f"Task# {i} to do is: {processed_tasks[i]}")
+    def print_task(self, processed_task, counter: int):
+        print(f"Task# {counter} to do is: {processed_task}")
         
     def sort(self) -> list:
         # No longer need local tasks_map, using self.current_tasks_map
@@ -50,8 +51,11 @@ class Graph:
                     return []  # Return empty list if cycle is detected
         
         result = []
+        task_counter = 1
         for val in reversed(result_holder):
             result.append(val)
+            self.print_task(val, task_counter)
+            task_counter += 1
 
         return result
 
@@ -84,40 +88,42 @@ class Graph:
         result.append(graph_node.val)
         return True
 
-    def test_processing(self):
-        """Quick test method to verify DFS processing with 3 different scenarios"""
-        print("=== DFS Topological Sort Testing ===\n")
-        
-        # Test Case 1: Linear dependencies (simple chain)
-        print("Test 1: Linear Dependencies")
-        tasks1 = [0, 1, 2, 3]
-        dependencies1 = [[0, 1], [1, 2], [2, 3]]
-        print(f"Tasks: {tasks1}")
-        print(f"Dependencies: {dependencies1}")
-        self.process(tasks1, dependencies1)
-        print()
-        
-        # Test Case 2: Complex dependencies (multiple paths)
-        print("Test 2: Complex Dependencies")
-        tasks2 = [0, 1, 2, 3, 4, 5]
-        dependencies2 = [[2, 3], [3, 1], [4, 0], [4, 1], [5, 0], [5, 2]]
-        print(f"Tasks: {tasks2}")
-        print(f"Dependencies: {dependencies2}")
-        self.process(tasks2, dependencies2)
-        print()
-        
-        # Test Case 3: Cycle detection
-        print("Test 3: Cycle Detection")
-        tasks3 = [0, 1, 2]
-        dependencies3 = [[0, 1], [1, 2], [2, 0]]
-        print(f"Tasks: {tasks3}")
-        print(f"Dependencies: {dependencies3}")
-        self.process(tasks3, dependencies3)
-        print()
-        
-        print("=== Testing Complete ===")
+def test_processing():
+    """Quick test method to verify DFS processing with 3 different scenarios"""
+    print("=== DFS Topological Sort Testing ===\n")
+    
+    # Test Case 1: Linear dependencies (simple chain)
+    print("Test 1: Linear Dependencies")
+    tasks1 = [0, 1, 2, 3]
+    dependencies1 = [[0, 1], [1, 2], [2, 3]]
+    print(f"Tasks: {tasks1}")
+    print(f"Dependencies: {dependencies1}")
+    graph1 = Graph(tasks1, dependencies1)
+    graph1.process()
+    print()
+    
+    # Test Case 2: Complex dependencies (multiple paths)
+    print("Test 2: Complex Dependencies")
+    tasks2 = [0, 1, 2, 3, 4, 5]
+    dependencies2 = [[2, 3], [3, 1], [4, 0], [4, 1], [5, 0], [5, 2]]
+    print(f"Tasks: {tasks2}")
+    print(f"Dependencies: {dependencies2}")
+    graph2 = Graph(tasks2, dependencies2)
+    graph2.process()
+    print()
+    
+    # Test Case 3: Cycle detection
+    print("Test 3: Cycle Detection")
+    tasks3 = [0, 1, 2]
+    dependencies3 = [[0, 1], [1, 2], [2, 0]]
+    print(f"Tasks: {tasks3}")
+    print(f"Dependencies: {dependencies3}")
+    graph3 = Graph(tasks3, dependencies3)
+    graph3.process()
+    print()
+    
+    print("=== Testing Complete ===")
 
 # Quick test runner
 if __name__ == "__main__":
-    graph = Graph()
-    graph.test_processing()
+    test_processing()

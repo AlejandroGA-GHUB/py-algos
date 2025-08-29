@@ -7,7 +7,7 @@ class drops_per_bucket:
     # drops are created when hitting an obstacle or if the spot below is simply empty
     # a drop splits to the left and right when hitting an obstacle
     # starts at a given position in the matrix
-    # 0 = empty, 1 = obstacle, 2 = added drop
+    # 0 = empty, 1 = obstacle, 2 = added drop on empty slot, 3 = .5 drop
 
     # starts at [0][2] here
     # [0, 0, 0, 0]
@@ -54,7 +54,9 @@ class drops_per_bucket:
         for col in range(num_cols):
             running_counter = 0
             for row in range(num_rows):
-                if matrix[row][col] == 2:
+                if matrix[row][col] == 3:
+                    running_counter += 0.5
+                elif matrix[row][col] == 2:
                     running_counter += 1
                 elif matrix[row][col] == 1:
                     running_counter = 0
@@ -65,13 +67,13 @@ class drops_per_bucket:
     # Checks left and right spots on the obstacles row to apply if empty.
     def apply_to_left_and_right(self, row: int, col: int, matrix: np.ndarray, valid_drops: q):
         if col > 0 and matrix[row][col - 1] == 0:
-            matrix[row][col - 1] = 2
+            matrix[row][col - 1] = 3
             valid_drops.append([row, col - 1])
         if col < matrix.shape[1] - 1 and matrix[row][col + 1] == 0:
-            matrix[row][col + 1] = 2
+            matrix[row][col + 1] = 3
             valid_drops.append([row, col + 1])
 
-# Simple test code prior to pytest test file.
+# Simple test code prior to pytest test file for visualization.
 def test_count_drops():
     """Test the count_drops function with the provided test case"""
     # Test case matrix
