@@ -203,5 +203,92 @@ class TestTopologicalSort(unittest.TestCase):
         # Second call should use cached result
         dfs_sorter.process()
 
+    def test_callback_functionality(self):
+        """Test the callback functionality in process() method"""
+        tasks = [0, 1, 2]
+        tasks_dependencies = [[0, 1], [1, 2]]
+        
+        # Track calls to verify callbacks work
+        bfs_calls = []
+        dfs_calls = []
+        
+        def bfs_callback(task_value, counter):
+            bfs_calls.append((task_value, counter))
+        
+        def dfs_callback(task_value, counter):
+            dfs_calls.append((task_value, counter))
+        
+        # Test BFS with custom callback
+        bfs_sorter = BFS_Sort(tasks, tasks_dependencies)
+        bfs_sorter.process(print_callback=bfs_callback)
+        
+        # Test DFS with custom callback
+        dfs_sorter = DFS_Sort(tasks, tasks_dependencies)
+        dfs_sorter.process(print_callback=dfs_callback)
+        
+        # Verify callbacks were called
+        self.assertEqual(len(bfs_calls), 3)  # Should process 3 tasks
+        self.assertEqual(len(dfs_calls), 3)  # Should process 3 tasks
+        
+        # Verify correct task values and counters
+        expected_bfs = [(0, 1), (1, 2), (2, 3)]
+        expected_dfs = [(0, 1), (1, 2), (2, 3)]
+        
+        self.assertEqual(bfs_calls, expected_bfs)
+        self.assertEqual(dfs_calls, expected_dfs)
+
+    def test_different_callbacks_per_call(self):
+        """Test using different callbacks for different process() calls"""
+        tasks = [0, 1, 2]
+        tasks_dependencies = [[0, 1], [1, 2]]
+        
+        # Track different callback types
+        default_calls = []
+        custom_calls = []
+        
+        def custom_callback(task_value, counter):
+            custom_calls.append(f"Custom: Task {task_value} at step {counter}")
+        
+        # Create a graph instance
+        graph = BFS_Sort(tasks, tasks_dependencies)
+        
+        # First call with default printing (we can't easily capture print output in tests)
+        # But we can verify it doesn't crash
+        graph.process()
+        
+        # Get the result to verify it was cached
+        current_deps_tuple = tuple(tuple(inner) for inner in tasks_dependencies)
+        cached_result = graph.tasks_list_seen[current_deps_tuple]
+        self.assertEqual(cached_result, [0, 1, 2])
+        
+        # Second call with custom callback (should use cached results)
+        graph.process(print_callback=custom_callback)
+        
+        # Verify custom callback was called for cached results
+        expected_custom = [
+            "Custom: Task 0 at step 1",
+            "Custom: Task 1 at step 2", 
+            "Custom: Task 2 at step 3"
+        ]
+        self.assertEqual(custom_calls, expected_custom)
+
+    def test_silent_callback(self):
+        """Test using silent callback (no output)"""
+        tasks = [0, 1, 2]
+        tasks_dependencies = [[0, 1], [1, 2]]
+        
+        # Silent callback that does nothing
+        def silent_callback(task_value, counter):
+            pass  # No output
+        
+        # Should run without any output and not crash
+        graph = BFS_Sort(tasks, tasks_dependencies)
+        graph.process(print_callback=silent_callback)
+        
+        # Verify result is still correct
+        current_deps_tuple = tuple(tuple(inner) for inner in tasks_dependencies)
+        result = graph.tasks_list_seen[current_deps_tuple]
+        self.assertEqual(result, [0, 1, 2])
+
 if __name__ == '__main__':
     unittest.main()

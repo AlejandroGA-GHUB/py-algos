@@ -13,7 +13,10 @@ class Graph:
             # unvisited, visiting, visited
             self.visited_status = "Unvisited" 
         
-    def process(self):
+    def process(self, print_callback=None):
+
+        # Use provided callback or default print behavior
+        self.print_callback = print_callback or self.default_print_task
 
         current_dependencies_list = tuple(tuple(inner) for inner in self.dependencies_list)
 
@@ -27,7 +30,11 @@ class Graph:
         print(f"Task list has been processed already, skipping the sorting step...")
         arr = self.tasks_list_seen[current_dependencies_list]
         for i, task_val in enumerate(arr):
-            print(f"Task# {i+1} to do is: {task_val}")
+            self.print_callback(task_val, i+1)
+
+    def default_print_task(self, task_value, counter: int):
+        """Default printing behavior"""
+        print(f"Task# {counter} to do is: {task_value}")
     
     def create_graph_nodes(self):
         for task in self.tasks:
@@ -38,9 +45,6 @@ class Graph:
         for list in self.dependencies_list:
             current_dependant = self.current_tasks_map[list[1]]
             self.current_tasks_map[list[0]].dependencies.append(current_dependant)
-
-    def print_task(self, processed_task, counter: int):
-        print(f"Task# {counter} to do is: {processed_task}")
         
     def sort(self) -> list:
         # No longer need local tasks_map, using self.current_tasks_map
@@ -54,7 +58,7 @@ class Graph:
         task_counter = 1
         for val in reversed(result_holder):
             result.append(val)
-            self.print_task(val, task_counter)
+            self.print_callback(val, task_counter)
             task_counter += 1
 
         return result
@@ -89,37 +93,53 @@ class Graph:
         return True
 
 def test_processing():
-    """Quick test method to verify DFS processing with 3 different scenarios"""
+    """Quick test method to verify DFS processing with callback functionality"""
     print("=== DFS Topological Sort Testing ===\n")
     
-    # Test Case 1: Linear dependencies (simple chain)
-    print("Test 1: Linear Dependencies")
+    # Custom callback functions for demonstration
+    def fancy_print(task_value, counter):
+        print(f"🚀 DFS Processing Task {task_value} (Step #{counter})")
+    
+    def minimal_print(task_value, counter):
+        print(f"{counter}: {task_value}")
+    
+    def verbose_print(task_value, counter):
+        print(f">>> DFS: Task {task_value} completed at position {counter} <<<")
+    
+    # Test Case 1: Linear dependencies with default printing
+    print("Test 1: Linear Dependencies (Default Printing)")
     tasks1 = [0, 1, 2, 3]
     dependencies1 = [[0, 1], [1, 2], [2, 3]]
     print(f"Tasks: {tasks1}")
     print(f"Dependencies: {dependencies1}")
     graph1 = Graph(tasks1, dependencies1)
-    graph1.process()
+    graph1.process()  # No callback = default printing
     print()
     
-    # Test Case 2: Complex dependencies (multiple paths)
-    print("Test 2: Complex Dependencies")
+    # Test Case 2: Complex dependencies with fancy printing
+    print("Test 2: Complex Dependencies (Fancy Printing)")
     tasks2 = [0, 1, 2, 3, 4, 5]
     dependencies2 = [[2, 3], [3, 1], [4, 0], [4, 1], [5, 0], [5, 2]]
     print(f"Tasks: {tasks2}")
     print(f"Dependencies: {dependencies2}")
     graph2 = Graph(tasks2, dependencies2)
-    graph2.process()
+    graph2.process(print_callback=fancy_print)  # Custom callback
     print()
     
-    # Test Case 3: Cycle detection
-    print("Test 3: Cycle Detection")
+    # Test Case 3: Cycle detection with minimal printing
+    print("Test 3: Cycle Detection (Minimal Printing)")
     tasks3 = [0, 1, 2]
     dependencies3 = [[0, 1], [1, 2], [2, 0]]
     print(f"Tasks: {tasks3}")
     print(f"Dependencies: {dependencies3}")
     graph3 = Graph(tasks3, dependencies3)
-    graph3.process()
+    graph3.process(print_callback=minimal_print)  # Another custom callback
+    print()
+    
+    # Test Case 4: Testing cached processing with different callback
+    print("Test 4: Cached Processing (Different Callback)")
+    print("Reusing graph2 with verbose printing...")
+    graph2.process(print_callback=verbose_print)  # Different callback for cached result
     print()
     
     print("=== Testing Complete ===")
