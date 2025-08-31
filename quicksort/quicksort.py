@@ -97,7 +97,8 @@ if __name__ == "__main__":
         Student("Charlie", 170, 65),
         Student("Diana", 160, 50),
         Student("Eve", 175, 60),
-        Student("Frank", 185, 80)
+        Student("Frank", 185, 80),
+        Student("Rod", 169, 74)
     ]
     
     print("Original students:")
